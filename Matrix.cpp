@@ -113,6 +113,8 @@ void Matrix::DM() {
 			i = i + col; //increment to the second row
 				
 	}
+
+	cout << "\n";
 }
 
 
@@ -152,7 +154,7 @@ Matrix Matrix::Row_Dec(float row_num) {
 
 	Matrix mR(1, col);
 
-	float index = (row_num - 1) * row;
+	float index = (row_num - 1) * col;
 
 	for (float i = (0+index); i < (col+index); i++) {
 
@@ -201,7 +203,7 @@ Matrix Matrix::Col_Adj(Matrix m1) {
 		mD = mR.Row_Dec(i);
 		mC = m1.Row_Dec(i);
 
-		for (f1 = mD.num.begin(), f2 = mC.num.begin(); f1 != mD.num.end(), f2 != mC.num.end(); ++f1, ++f2) {
+		for (f1 = mD.num.begin(); f1 != mD.num.end(); ++f1) {
 
 			mU.num.push_back((*f1));
 		}
@@ -388,20 +390,19 @@ vector<float> Matrix::MVec(vector<float> matrix1) {
 */
 int main() {
 
-	vector<float> mat = {1,2,3,4,5,6,7,8,9};
+	vector<float> mat = {1,2,3,4};
 
-	vector<float> mat1 = { 1,0,0,0,1,0,0,0,1 };
+	vector<float> mat1 = { 1,0,0,0 };
 	
-	float row = 3;
+	float row = 4;
 
-	float col = 3;
+	float col = 1;
 
 	float s = 1;
 
 	Matrix m1(row,col,mat), m2(row, col, mat1);
 	
 	m1.DM();
-	cout << "\n";
 
 	m1 = m1.Col_Adj(m2);
 
