@@ -7,13 +7,9 @@ class Matrix
 {
 public:
 
-	//Constructors
-
 	Matrix(float dim_row, float dim_col); 
 
 	Matrix(float dim_row, float dim_col, vector<float> new_num);
-
-	// Display Matrix
 
 	void DM();
 
@@ -24,30 +20,18 @@ public:
 	Matrix Col_Dec(float col_num);
 
 	Matrix Row_Adj(Matrix m1);
-	
-	Matrix Col_Adj(Matrix m1);
 
-	// Matrix Addition 
+	Matrix Col_Adj(Matrix m1);
 
 	Matrix MA(Matrix m1);
 
-	// Matrix Subtraction (MS)
+	Matrix MS(Matrix m1);
 
-	Matrix MS(Matrix m1, Matrix m2);
-
-	// Matrix Multiplication (MM)
-
-	Matrix MM(Matrix m1, Matrix m2);
-
-	// Matrix Scalar Multiplication (SM)
+	Matrix MM(Matrix m1);
 
 	void SM(float scale);
 
-	// Matrix Inversion (MI)
-
 	Matrix MI(Matrix m1);
-
-	// Matrix Transposition (MT)
 
 	Matrix MT();
 
@@ -69,12 +53,21 @@ private:
 };
 
 
+// ****New Matrix Constructor
+//
+// Make new empty matrix of specified dimensions
+// for combining elements of other matrices 
+//  
 Matrix::Matrix(float dim_row, float dim_col) {
 
 	row = dim_row;
 	col = dim_col;
 }
 
+// ****Duplicate Matrix Constructor
+//
+// Make new matrix of specified dimensions filled with new_num values
+//
 Matrix::Matrix(float dim_row, float dim_col, vector<float> new_num) {
 
 	row = dim_row;
@@ -90,13 +83,10 @@ Matrix::Matrix(float dim_row, float dim_col, vector<float> new_num) {
 
 
 
-// Display Matrix
+// ****Display Matrix
 // 
-// Intakes square matrix of dim N x N
-// prints out N elements of a row per line
-// surrounds matrix with square brackets
-// 
-
+// Displays Object matrix surrounded by square brackets
+//  
 void Matrix::DM() {
 
 	//Get matrix dimension
@@ -120,18 +110,28 @@ void Matrix::DM() {
 }
 
 
-//Matrix Row reduction
+// ****Matrix Row reduction
 // 
+// Reduces NxN matrix into RREF form if possible
 // 
+// Returns Matrix in RREF form
 // 
-// 
-/*Matrix Matrix::RREF() {
+Matrix Matrix::RREF() {
 
 	//scalar to reduce diagonal values to 1
 	//scale always equals the inverse of the number it is multiplying
 	float scale = 0;
 
+	Matrix m1(row, col, num), mR(row, col), mD(row, col);
+
 	vector<float>::iterator i1;
+
+	mR = m1.Row_Dec(1);
+
+	scale = (1 / (mR.num.at(0)));
+
+	mR.SM(scale);
+
 
 	i1 = num.begin();
 
@@ -142,16 +142,14 @@ void Matrix::DM() {
 
 	//subtract pivot position of column-now equal to 1- multiplied by value of matrix position you are trying to eliminate
 
-}*/
+}
 
-//Matrix Row_Dec
+// ****Matrix Row_Dec
 //
-// Extracts specified row from object matrix
+// Extracts row_num'nth row from object matrix
 // 
-// push_back row elements from 0+(row# - 1)(row) - row+(row# - 1)(row) into new matrix
+// Returns a new matrix of dimension 1xN
 // 
-//
-
 Matrix Matrix::Row_Dec(float row_num) {
 
 	Matrix mR(1, col);
@@ -166,11 +164,12 @@ Matrix Matrix::Row_Dec(float row_num) {
 	return mR;
 }
 
-//Matrix Col_Dec
+// ****Matrix Col_Dec
 //
-// Extracts specified col from object matrix
+// Extracts col_num'nth column from object matrix. 
 // 
-//
+// Returns a new matrix of dimension Mx1
+// 
 Matrix Matrix::Col_Dec(float col_num) { 
 	
 	if (col_num > col) {
@@ -188,13 +187,11 @@ Matrix Matrix::Col_Dec(float col_num) {
 	return mR;
 }
 
-//Matrix Col_Adj
+// ****Matrix Col_Adj
 //
-// Adjoins argument matrix to the right side of object matrix
+// Adjoins argument matrix m1 to the right side of object matrix
 // 
-// Break matrices into row vectors, push_back m1 row onto object matrix row.
-// Repeat this for each row.
-// Update dimensions
+// Returns matrix of dimension Mx(2N)
 //
 Matrix Matrix::Col_Adj(Matrix m1) {
 
@@ -221,10 +218,11 @@ Matrix Matrix::Col_Adj(Matrix m1) {
 	return mU;
 }
 
-//Matrix Row_Adj
+// ****Matrix Row_Adj
 //
-// Adjoins argument matrix to bottom of object matrix
-// push_back elements of argument onto object. return object.
+// Adjoins argument matrix m1 to bottom of object matrix
+// 
+// Returns matrix of dimension (2M)xN
 //
 Matrix Matrix::Row_Adj(Matrix m1) {
 
@@ -251,17 +249,12 @@ Matrix Matrix::Row_Adj(Matrix m1) {
 	return mU;
 }
 
-
-// Matrix Addition
+// ****Matrix Addition
 //
-//	- Take in Vectors of defined size
-//	- Define four iterators
-//	- Point to beginning and end of both vectors
-//	- Iterate through vectors and add each index value
-//	- Store result of addition in new vector
+// Adds NxN matrices.
 // 
-//
-
+// Returns sum of matrices as NxN matrix 
+// 
 Matrix Matrix::MA(Matrix m1) {
 	
 	if (!((col == m1.col) && (row == m1.row))) {
@@ -270,11 +263,7 @@ Matrix Matrix::MA(Matrix m1) {
 	}
 	Matrix mR(row,m1.row);
 	
-	vector<float>::iterator f1;
-	vector<float>::iterator b1;
-	
-	vector<float>::iterator f2;
-	vector<float>::iterator b2;
+	vector<float>::iterator f1, f2;
 
 	for (f1 = m1.num.begin(), f2 = num.begin(); f1 != m1.num.end(), f2 != num.end(); ++f1, ++f2) {
 
@@ -284,23 +273,25 @@ Matrix Matrix::MA(Matrix m1) {
 	return mR;
 }
 
-// Matrix Subtraction (MS)
+// ****Matrix Subtraction (MS)
+//
+// Subtracts NxN matrices
+// 
+// Subtracts argument matrix m1 from object matrix
+// 
+// Returns difference of matrices as NxN matrix
+// 
+Matrix Matrix::MS(Matrix m1) {
 
-Matrix Matrix::MS(Matrix m1, Matrix m2) {
-
-	if (!((m1.col == m2.col) && (m1.row == m2.row))) {
+	if (!((col == m1.col) && (row == m1.row))) {
 		cout << "Matrices must be of equal dimension to be summed! " << "\n";
-		exit;
+		exit(1);
 	}
-	Matrix mR(m1.row, m1.row);
+	Matrix mR(row, m1.row);
 
-	vector<float>::iterator f1;
-	vector<float>::iterator b1;
+	vector<float>::iterator f1, f2;
 
-	vector<float>::iterator f2;
-	vector<float>::iterator b2;
-
-	for (f1 = m1.num.begin(), f2 = m2.num.begin(); f1 != m1.num.end(), f2 != m2.num.end(); ++f1, ++f2) {
+	for (f1 = m1.num.begin(), f2 = num.begin(); f1 != m1.num.end(), f2 != num.end(); ++f1, ++f2) {
 
 		mR.num.push_back((*f1) - (*f2));
 	}
@@ -308,36 +299,38 @@ Matrix Matrix::MS(Matrix m1, Matrix m2) {
 	return mR;
 }
 
-// Matrix Multiplication (MM)
-// Assume NxN matrix
+// ****Matrix Multiplication (MM)
+//
+// Multiplies AxN and NxB Matrices
+// 
+// Returns AxB matrix product
+//   
+Matrix Matrix::MM(Matrix m1) {
 
-Matrix Matrix::MM(Matrix m1, Matrix m2) {
-
-	if (!(m1.col == m2.row)) {
+	if (!(col == m1.row)) {
 		cout << "The column dimension of first matrix must equal the row dimension of the second matrix to multiply them! " << "\n";
 		exit;
 	}
 
-	Matrix mR(m1.row, m2.col);
+	Matrix mR(row, m1.col), mD(row, col, num);
 
-	vector<float>::iterator f1;
-	vector<float>::iterator f2;
+	vector<float>::iterator f1, f2;
 
-	f1 = m1.num.begin();
-	f2 = m2.num.begin();
+	f1 = mD.num.begin();
+	f2 = m1.num.begin();
 
 	
 	float k = 0;
 
-	for (float g = 0; g < m2.row; g++) {
+	for (float g = 0; g < m1.row; g++) {
 
-		for (float j = 0; j < m1.col; j++) {
+		for (float j = 0; j < mD.col; j++) {
 
 			k = 0;
 				//Increments col dimension of second matrix
-				for (float i = 0; i < m2.col; i++) {
+				for (float i = 0; i < m1.col; i++) {
 
-					k += (*(f1 + j + (m1.col * i))) * (*(f2 + (m2.col * g) + i));
+					k += (*(f1 + j + (mD.col * i))) * (*(f2 + (m1.col * g) + i));
 				}
 
 				mR.num.push_back(k);
@@ -348,8 +341,12 @@ Matrix Matrix::MM(Matrix m1, Matrix m2) {
 	return mR;
 }
 
-// Matrix Scalar Multiplication (SM)
-
+// ****Matrix Scalar Multiplication (SM)
+//
+// Scales MxN matrix by scalar scale
+// 
+// Returns scaled MxN matrix
+// 
 void Matrix::SM(float scale) {
 
 	vector<float>::iterator f1;
@@ -361,8 +358,10 @@ void Matrix::SM(float scale) {
 
 }
 
-// Matrix Inversion(MI)
-
+// ****Matrix Inversion (MI)
+//
+// Inverts NxN matrices if possible
+// 
 Matrix Matrix::MI(Matrix m1) {
 
 	if (!(row == col)) {
@@ -382,8 +381,12 @@ Matrix Matrix::MI(Matrix m1) {
 	return mR;
 }
 
-// Matrix Transposition (MT)
-
+// ****Matrix Transpose (MT)
+//
+// Transposes MxN matrix
+// 
+// Returns NxM matrix 
+//
 Matrix Matrix::MT() {
 
 	//Change dimension
@@ -403,7 +406,7 @@ Matrix Matrix::MT() {
 
 }
 
-// Matrix Eigenvalue (MVal)
+// ****Matrix Eigenvalue (MVal)
 /*
 vector<float> Matrix::MVal(vector<float> matrix1) {
 
@@ -417,6 +420,7 @@ vector<float> Matrix::MVec(vector<float> matrix1) {
 
 }
 */
+
 int main() {
 
 	vector<float> mat = {1,2,3,4,5,6,7,8,9,10,11,12};
@@ -429,13 +433,7 @@ int main() {
 
 	float s = 1;
 
-	Matrix m1(row,col,mat), m2(row, col, mat1);
-	
-	m1.DM();
 
-	m1 = m1.Col_Dec(2);
-
-	m1.DM();
 
 	return 0;
 }
