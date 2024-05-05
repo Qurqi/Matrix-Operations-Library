@@ -106,7 +106,7 @@ void Matrix::DM() {
 
 			cout << "]\n";
 
-			i = i + col;
+			i = i + col; //increment to the second row
 				
 	}
 }
@@ -117,9 +117,24 @@ void Matrix::DM() {
 // 
 // 
 // 
-Matrix Matrix::RREF() {
+/*Matrix Matrix::RREF() {
 
-}
+	//scalar to reduce diagonal values to 1
+	//scale always equals the inverse of the number it is multiplying
+	float scale = 0;
+
+	vector<float>::iterator i1;
+
+	i1 = num.begin();
+
+	//Set scale equal to the inverse of the pivot position of the respective column
+	scale = (1 / (*i1));
+
+	//multiply whole row by the scalar value
+
+	//subtract pivot position of column-now equal to 1- multiplied by value of matrix position you are trying to eliminate
+
+}*/
 
 //Matrix Row_Dec
 //
@@ -264,7 +279,6 @@ Matrix Matrix::MM(Matrix m1, Matrix m2) {
 void Matrix::SM(float scale) {
 
 	vector<float>::iterator f1;
-	vector<float>::iterator b1;
 
 	for (f1 = num.begin(); f1 != num.end(); ++f1) {
 
@@ -298,27 +312,20 @@ Matrix Matrix::MI(Matrix m1) {
 
 Matrix Matrix::MT() {
 
-	//scalar to reduce diagonal values to 1
-	//scale always equals the inverse of the number it is multiplying
-	float scale = 0;
+	//Change dimension
+	Matrix mR(col, row);
 
-	vector<float>::iterator i1;
+	//Take each element column by column and push_back into new matrix
 
-	i1 = num.begin();
+	for (float i = 0; i < col; i++) { // Increment horizontally through the matrix elements
 
-	//Set scale equal to the inverse of the pivot position of the respective column
-	scale = (1/(*i1));
+		for (float j = 0; j < row; j++) { // Increment vertically through the matrix elements
 
-	//multiply whole row by the scalar value
-
-	//subtract pivot position of column-now equal to 1- multiplied by value of matrix position you are trying to eliminate
-
-
-
-
-
-
-
+			mR.num.push_back(num.at((row*j) + i));
+			
+		}
+	}
+	return mR;
 
 }
 
@@ -338,18 +345,23 @@ vector<float> Matrix::MVec(vector<float> matrix1) {
 */
 int main() {
 
-	vector<float> mat = {1,4,5,6};
+	vector<float> mat = {1,2,3,4,5,6,7,8,9};
 	
-	float row = 4;
+	float row = 3;
 
-	float col = 1;
+	float col = 3;
 
 	float s = 7;
 
 	Matrix m1(row,col,mat);
 	
-	m1.SM(s);
+	m1.DM();
+
+	cout << "\n";
+
 	m1 = m1.MT();
+
+	m1.SM(s);
 
 	m1.DM();
 
