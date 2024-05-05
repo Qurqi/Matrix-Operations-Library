@@ -21,6 +21,10 @@ public:
 
 	Matrix Row_Dec(float row_num);
 
+	Matrix Col_Dec(float col_num);
+
+	Matrix Col_Adj(Matrix m1);
+
 	// Matrix Addition 
 
 	Matrix MA(Matrix m1);
@@ -163,13 +167,52 @@ Matrix Matrix::Row_Dec(float row_num) {
 // Extracts specified col from object matrix
 // 
 //
+Matrix Matrix::Col_Dec(float col_num) {
+
+	Matrix mR(row, 1);
+
+	float index = (col_num - 1) * col;
+
+	for (float i = (0 + index); i < (row + index); i++) {
+
+		mR.num.push_back(num.at(i*col));
+	}
+
+	return mR;
+}
 
 //Matrix Col_Adj
 //
 // Adjoins argument matrix to the right side of object matrix
 // 
-// Transpose object, push back elements of argument, return transposed result matrix
+// Break matrices into row vectors, push_back m1 row onto object matrix row.
+// Repeat this for each row.
+// Update dimensions
 //
+Matrix Matrix::Col_Adj(Matrix m1) {
+
+	Matrix mR(row, col, num), mD(row, col), mC(m1.row, m1.col), mU(row, (col+m1.col)); // mR created to use member function on object matrix
+	//mD and mC are dummy matrices to store row info without overwriting orignal matrix info
+
+	vector<float>::iterator f1, f2;
+
+	for (float i = 1; i <= m1.row ; i++) { //Extract rows from mD and mC
+		
+		mD = mR.Row_Dec(i);
+		mC = m1.Row_Dec(i);
+
+		for (f1 = mD.num.begin(), f2 = mC.num.begin(); f1 != mD.num.end(), f2 != mC.num.end(); ++f1, ++f2) {
+
+			mU.num.push_back((*f1));
+		}
+		for (f2 = mC.num.begin(); f2 != mC.num.end(); ++f2) {
+
+			mU.num.push_back((*f2));
+		}
+	}
+
+	return mU;
+}
 
 //Matrix Row_Adj
 //
@@ -346,26 +389,23 @@ vector<float> Matrix::MVec(vector<float> matrix1) {
 int main() {
 
 	vector<float> mat = {1,2,3,4,5,6,7,8,9};
+
+	vector<float> mat1 = { 1,0,0,0,1,0,0,0,1 };
 	
 	float row = 3;
 
 	float col = 3;
 
-	float s = 7;
+	float s = 1;
 
-	Matrix m1(row,col,mat);
+	Matrix m1(row,col,mat), m2(row, col, mat1);
 	
 	m1.DM();
-
 	cout << "\n";
 
-	m1 = m1.MT();
-
-	m1.SM(s);
+	m1 = m1.Col_Adj(m2);
 
 	m1.DM();
-
-	cout << "\n";
 
 	return 0;
 }
