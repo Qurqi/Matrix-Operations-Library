@@ -9,6 +9,8 @@ public:
 
 	Matrix(float dim_row, float dim_col); 
 
+	Matrix(float dim_col);
+
 	Matrix(float dim_row, float dim_col, vector<float> new_num);
 
 	void DM();
@@ -22,6 +24,16 @@ public:
 	Matrix Row_Adj(Matrix m1);
 
 	Matrix Col_Adj(Matrix m1);
+
+	Matrix Row_ExtRCT(float row_num);
+
+	Matrix Row_ExtRCB(float row_num);
+
+	float Ext_PV(float row_num);
+	
+	Matrix Row_Rep(float row_num, Matrix mR);
+
+	Matrix Row_Sub(float row_num, Matrix mS);
 
 	Matrix MA(Matrix m1);
 
@@ -52,7 +64,6 @@ private:
 
 };
 
-
 // ****New Matrix Constructor
 //
 // Make new empty matrix of specified dimensions
@@ -61,6 +72,17 @@ private:
 Matrix::Matrix(float dim_row, float dim_col) {
 
 	row = dim_row;
+	col = dim_col;
+}
+
+// ****New Empty Matrix Constructor Row
+//
+// Make new empty matrix of specified dimensions
+// for combining elements of other matrices 
+//  
+Matrix::Matrix(float dim_col) {
+
+	row = 0;
 	col = dim_col;
 }
 
@@ -80,8 +102,6 @@ Matrix::Matrix(float dim_row, float dim_col, vector<float> new_num) {
 		num.push_back((*f1));
 	}
 }
-
-
 
 // ****Display Matrix
 // 
@@ -109,6 +129,122 @@ void Matrix::DM() {
 	cout << "\n";
 }
 
+Matrix Matrix::Row_ExtRCT(float row_num) {
+	
+	Matrix mT(1,col), mC(row_num - 1,col), mO(row,col,num);
+
+	for (float i = 1; i < row_num; i++) {
+
+		mT = mO.Row_Dec(i);
+
+		for (float k = 0; k < mT.col; k++) {
+
+			mC.num.push_back(mT.num.at(k));
+		}
+	}
+
+	return mC;
+}
+
+Matrix Matrix::Row_ExtRCB(float row_num) {
+
+	Matrix mT(1, col), mC(row-row_num, col), mO(row, col, num);
+
+	for (float i = (row_num+1); i < (row+1); i++) {
+
+		mT = mO.Row_Dec(i);
+
+		for (float k = 0; k < mT.col; k++) {
+
+			mC.num.push_back(mT.num.at(k));
+		}
+	}
+
+	return mC;
+
+}
+
+float Matrix::Ext_PV(float row_num) {
+
+	if (row != col) {
+		printf("Matrix not NxN! Only working for NxN matrices");
+		exit(1);
+	}
+
+	vector<float>::iterator f1;
+	float PV;
+
+	f1 = num.begin();
+
+	PV = *(f1 + (row_num - 1) * col + (row_num - 1));
+
+	return PV;
+
+}
+
+Matrix Matrix::Row_Rep(float row_num, Matrix mR) {
+
+	if (mR.col != col) {
+		printf("Matrix column dimensions dont match!");
+		exit(1);
+	}
+
+	Matrix mT(col), mT1(col);
+
+	if (row_num == 1) {
+
+		mT = Row_ExtRCB(1);
+
+		mR = mR.Row_Adj(mT);
+
+		return mR;
+	}
+	else {
+		mT = Row_ExtRCT(row_num);
+		mT1 = Row_ExtRCB(row_num);
+		mR = mT.Row_Adj(mR);
+		mR = mR.Row_Adj(mT1);
+		return mR;
+	}
+
+}
+
+// ****Matrix Row Subtraction operation
+// 
+// Extracts indicated row(arg1) from obj matrix and subtracts 
+// given row (arg2) from extracted row.
+// 
+// Returns matrix of original dimension with indicated row replaced with 
+// result of row subtraction
+// 
+Matrix Matrix::Row_Sub(float row_num, Matrix mS) {
+
+	if (mS.col != col) {
+
+		printf("The column dimension of the subtraction matrix and the object matrix do not match.\n\n Please try again.\n");
+		exit(1);
+	}
+
+	Matrix mT(0,0), mC(row_num-1, mS.col), mC1(row-row_num, mS.col);
+
+	mT = Row_Dec(row_num);
+
+	mT = mT.MS(mS);
+
+	if (row_num > 1) {
+
+		mC = Row_ExtRCT(row_num);
+
+		mT = mC.Row_Adj(mT);		
+	}
+	
+	mC1 = Row_ExtRCB(row_num);
+	mT = mT.Row_Adj(mC1);
+
+	return mT;
+
+
+}
 
 // ****Matrix Row reduction
 // 
@@ -122,27 +258,11 @@ Matrix Matrix::RREF() {
 	//scale always equals the inverse of the number it is multiplying
 	float scale = 0;
 
-	Matrix m1(row, col, num), mR(row, col), mD(row, col);
+	Matrix m1(row, col, num), mR(row, col), mD(row, col), m0(1,col), mF(col), mG(row,col), mT(row, col), mJ(col);
 
-	vector<float>::iterator i1;
-
-	mR = m1.Row_Dec(1);
-
-	scale = (1 / (mR.num.at(0)));
-
-	mR.SM(scale);
+	vector<float>::iterator i1, iF;
 
 
-	i1 = num.begin();
-
-	//Set scale equal to the inverse of the pivot position of the respective column
-	scale = (1 / (*i1));
-
-	//multiply whole row by the scalar value
-
-	//subtract pivot position of column-now equal to 1- multiplied by value of matrix position you are trying to eliminate
-
-}
 
 // ****Matrix Row_Dec
 //
@@ -226,25 +346,20 @@ Matrix Matrix::Col_Adj(Matrix m1) {
 //
 Matrix Matrix::Row_Adj(Matrix m1) {
 
-	Matrix mR(row, col, num), mD(row, col), mC(m1.row, m1.col), mU(row+m1.row, (col)); // mR created to use member function on object matrix
+	Matrix mR(row, col, num), mU(row+m1.row, col); // mR created to use member function on object matrix
 	//mD and mC are dummy matrices to store row info without overwriting orignal matrix info
 
 	vector<float>::iterator f1, f2;
 
-	for (float i = 1; i <= m1.row; i++) { //Extract rows from mD and mC
-
-		mD = mR.Row_Dec(i);
-		mC = m1.Row_Dec(i);
-
-		for (f1 = mD.num.begin(); f1 != mD.num.end(); ++f1) {
+		for (f1 = mR.num.begin(); f1 != mR.num.end(); ++f1) {
 
 			mU.num.push_back((*f1));
 		}
-		for (f2 = mC.num.begin(); f2 != mC.num.end(); ++f2) {
+		for (f2 = m1.num.begin(); f2 != m1.num.end(); ++f2) {
 
 			mU.num.push_back((*f2));
 		}
-	}
+	
 
 	return mU;
 }
@@ -284,10 +399,10 @@ Matrix Matrix::MA(Matrix m1) {
 Matrix Matrix::MS(Matrix m1) {
 
 	if (!((col == m1.col) && (row == m1.row))) {
-		cout << "Matrices must be of equal dimension to be summed! " << "\n";
+		cout << "Matrices must be of equal dimension to be subtracted! " << "\n";
 		exit(1);
 	}
-	Matrix mR(row, m1.row);
+	Matrix mR(row, col);
 
 	vector<float>::iterator f1, f2;
 
@@ -423,15 +538,19 @@ vector<float> Matrix::MVec(vector<float> matrix1) {
 
 int main() {
 
-	vector<float> mat = {1,2,3,4,5,6,7,8,9,10,11,12};
+	vector<float> mat = {1,2,3,4,5,6,7,8,9};
 
-	vector<float> mat1 = { 1,0,0,0,0,1,0,0,0,0,1,0 };
+	vector<float> mat1 = { 4,5,6 };
 	
-	float row = 1;
+	float row = 3;
 
-	float col = 12;
+	float col = 3;
 
-	float s = 1;
+	float s = 2;
+
+	Matrix m1(row, col, mat), m2(1, col, mat1);
+
+	
 
 
 
