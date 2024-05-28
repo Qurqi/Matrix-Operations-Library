@@ -23,6 +23,8 @@ public:
 
 	Matrix Row_Adj(Matrix m1);
 
+	void Row_Swap(float row_num1, float row_num2);
+
 	Matrix Col_Adj(Matrix m1);
 
 	Matrix Row_ExtRCT(float row_num);
@@ -166,6 +168,34 @@ Matrix Matrix::Row_ExtRCB(float row_num) {
 
 }
 
+void Matrix::Row_Swap(float row_num1, float row_num2) {
+
+	vector<float>::iterator f1, f2, fT;
+	
+	vector<float> temp = { 0 };
+
+	f1 = num.begin();
+	f2 = num.begin();
+	fT = temp.begin();
+
+	f1 = (f1 + (col * (row_num1 - 1)) );
+
+	f2 = (f2 + (col * (row_num2 - 1)) );
+
+	for (float i = 0; i < col; i++) {
+
+		*(fT) = *(f1);
+		*(f1) = *(f2);
+		*(f2) = *(fT);
+
+		f1++;
+		f2++;
+
+	}
+
+
+}
+
 float Matrix::Ext_PV(float row_num) {
 
 	if (row != col) {
@@ -283,6 +313,16 @@ Matrix Matrix::RREF() {
 		scal = mO.Ext_PV(i);
 
 		if (scal != 0) {
+			scal = (1 / scal);
+			mT = mO.Row_Dec(i);
+			mT.SM(scal);
+			mO = mO.Row_Rep(i, mT);
+		}
+		else if (scal == 0) {
+			
+			mO.Row_Swap(i, (i + 1));
+
+			scal = mO.Ext_PV(i);
 			scal = (1 / scal);
 			mT = mO.Row_Dec(i);
 			mT.SM(scal);
@@ -591,7 +631,7 @@ int main() {
 
 	Matrix m1(row, col, mat), m2(1, col, mat1);
 
-	m1 = m1.RREF();
+	m1.RREF();
 
 	m1.DM();
 
