@@ -27,9 +27,20 @@ public:
 
 	void SM(float scale);
 
-	Matrix MI(Matrix m1);
+	Matrix MI();
 
 	Matrix MT();
+
+	Matrix Iden(float dim);
+
+	bool operator== (Matrix m2) {
+		if ((row != m2.row) || (col != m2.col))
+			return false;
+		if (num != m2.num)
+			return false;
+		return true;
+
+	}
 
 private:
 
@@ -99,6 +110,29 @@ Matrix::Matrix(float dim_row, float dim_col, vector<float> new_num) {
 
 		num.push_back((*f1));
 	}
+}
+
+Matrix Matrix::Iden(float dim) {
+
+	Matrix mI(dim, dim);
+
+	for (float i = 0; i < dim ; i++) {
+
+		for (float j = 0; j < dim; j++) {
+			
+			if (j == i) {
+
+				mI.num.push_back(1);
+			}
+			else {
+
+				mI.num.push_back(0);
+			}
+
+		}
+	}
+
+	return mI;
 }
 
 // ****Display Matrix
@@ -610,7 +644,7 @@ void Matrix::SM(float scale) {
 //
 // Inverts NxN matrices if possible
 // 
-Matrix Matrix::MI(Matrix m1) {
+Matrix Matrix::MI() {
 
 	if (!(row == col)) {
 
@@ -618,15 +652,37 @@ Matrix Matrix::MI(Matrix m1) {
 		exit(1);
 	}
 	
-	Matrix mR(m1.row, m1.row);
+	Matrix m1(row,col,num), mR(row, 0), mI(row,row), mT(row,1), mR1(row, row);
 
-	vector<float>::iterator f1;
+	mI = mI.Iden(row);
 
-	for (f1 = m1.num.begin(); f1 != m1.num.end(); ++f1) {
+	m1 = m1.Col_Adj(mI);
 
+	m1 = m1.RREF();
+
+	for (float i = 1; i < mI.row + 1; i++) {
+
+		mT = m1.Col_Dec(i);
+		mR = mR.Col_Adj(mT);
 	}
 
-	return mR;
+	if (mR == mI) {
+		
+		for (float i = (mI.row+1); i < m1.row + 1; i++) {
+
+			mT = m1.Col_Dec(i);
+			mR1 = mR1.Col_Adj(mT);
+		}
+
+		return mR1;
+
+	}
+	else {
+
+		cout << "Matrix is not invertible\n";
+		exit(1);
+	}
+
 }
 
 // ****Matrix Transpose (MT)
@@ -657,23 +713,21 @@ Matrix Matrix::MT() {
 
 int main() {
 
-	vector<float> mat = {1,2,3,1,0,0,4,5,6,0,1,0,7,8,9,0,0,1};
+	vector<float> mat = {7,2,0,1,9,3,1,-7,8};
 
 	vector<float> mat1 = { (-4),(-5),(-6)};
 	
 	float row = 3;
 
-	float col = 6;
+	float col = 3;
 
-	float s =  (-2);
+	float s =  (4);
 
-	Matrix m1(row, col, mat), m2(1, col, mat1);
+	Matrix m1(row, col, mat), m2(1, col, mat1), mI(s,s);
 
-	m1 = m1.RREF();
+	m1 = m1.MI();
 
 	m1.DM();
-
-
 
 	return 0;
 }
