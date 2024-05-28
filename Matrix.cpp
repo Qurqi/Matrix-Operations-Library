@@ -30,6 +30,8 @@ public:
 	Matrix Row_ExtRCB(float row_num);
 
 	float Ext_PV(float row_num);
+
+	float Ext_RV(float row_num, float col_num);
 	
 	Matrix Row_Rep(float row_num, Matrix mR);
 
@@ -182,6 +184,24 @@ float Matrix::Ext_PV(float row_num) {
 
 }
 
+float Matrix::Ext_RV(float row_num, float col_num) {
+
+	if (row != col) {
+		printf("Matrix not NxN! Only working for NxN matrices");
+		exit(1);
+	}
+
+	vector<float>::iterator f1;
+	float RV;
+
+	f1 = num.begin();
+
+	RV = *(f1 + (row_num - 1) * col + col_num);
+
+	return RV;
+
+}
+
 Matrix Matrix::Row_Rep(float row_num, Matrix mR) {
 
 	if (mR.col != col) {
@@ -254,13 +274,34 @@ Matrix Matrix::Row_Sub(float row_num, Matrix mS) {
 // 
 Matrix Matrix::RREF() {
 
-	//scalar to reduce diagonal values to 1
-	//scale always equals the inverse of the number it is multiplying
-	float scale = 0;
+	float scal;
 
-	Matrix m1(row, col, num), mR(row, col), mD(row, col), m0(1,col), mF(col), mG(row,col), mT(row, col), mJ(col);
+	Matrix mO(row, col, num), mT(col), mT1(col);
 
-	vector<float>::iterator i1, iF;
+	for (float i = 1; i < row +1 ; i++) {
+
+		scal = mO.Ext_PV(i);
+
+		if (scal != 0) {
+			scal = (1 / scal);
+			mT = mO.Row_Dec(i);
+			mT.SM(scal);
+			mO = mO.Row_Rep(i, mT);
+		}
+
+		for (float j = (i + 1); j < row + 1; j++) {
+
+			scal = mO.Ext_RV(j, (i-1));
+			mT1 = mT;
+			mT1.SM(scal);
+			mO = mO.Row_Sub(j, mT1);
+
+		}
+	}
+
+	return mO;
+
+}
 
 
 
@@ -538,7 +579,7 @@ vector<float> Matrix::MVec(vector<float> matrix1) {
 
 int main() {
 
-	vector<float> mat = {1,2,3,4,5,6,7,8,9};
+	vector<float> mat = {1,2,3,1,2,3,7,8,9};
 
 	vector<float> mat1 = { 4,5,6 };
 	
@@ -550,7 +591,9 @@ int main() {
 
 	Matrix m1(row, col, mat), m2(1, col, mat1);
 
-	
+	m1 = m1.RREF();
+
+	m1.DM();
 
 
 
