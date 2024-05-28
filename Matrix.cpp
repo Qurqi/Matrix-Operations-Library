@@ -101,6 +101,11 @@ Matrix::Matrix(float dim_col) {
 //
 Matrix::Matrix(float dim_row, float dim_col, vector<float> new_num) {
 
+	if (new_num.size() != (dim_row * dim_col)) {
+		cout << "Input more numbers!\n";
+		exit(1);
+	}
+	
 	row = dim_row;
 	col = dim_col;
 
@@ -399,12 +404,11 @@ Matrix Matrix::RREF() {
 
 	mO = mO.REF();
 
-	for (float j = 1; j < row; j++) {
-
-		mT = mO.Row_Dec(j);
+	for (float j = 1; j < row+1; j++) {
 
 		for (float i = (j - 1); i > 0; i--) {
 
+			mT = mO.Row_Dec(j);
 			scal = mO.Ext_BRV(i, j);
 			mT.SM(scal);
 			mO = mO.Row_Sub(i,mT);
@@ -652,7 +656,7 @@ Matrix Matrix::MI() {
 		exit(1);
 	}
 	
-	Matrix m1(row,col,num), mR(row, 0), mI(row,row), mT(row,1), mR1(row, row);
+	Matrix m1(row,col,num), mR(row, 0), mI(row,row), mT(row,1), mR1(row, 0);
 
 	mI = mI.Iden(row);
 
@@ -666,9 +670,13 @@ Matrix Matrix::MI() {
 		mR = mR.Col_Adj(mT);
 	}
 
+	mR.DM();
+	m1.DM();
+
+
 	if (mR == mI) {
 		
-		for (float i = (mI.row+1); i < m1.row + 1; i++) {
+		for (float i = (mI.row+1); i < m1.col + 1; i++) {
 
 			mT = m1.Col_Dec(i);
 			mR1 = mR1.Col_Adj(mT);
@@ -713,7 +721,7 @@ Matrix Matrix::MT() {
 
 int main() {
 
-	vector<float> mat = {7,2,0,1,9,3,1,-7,8};
+	vector<float> mat = {0,1,2,3,4,5,7,8,9};
 
 	vector<float> mat1 = { (-4),(-5),(-6)};
 	
