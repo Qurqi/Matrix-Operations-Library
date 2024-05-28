@@ -17,6 +17,8 @@ public:
 	
 	Matrix REF();
 
+	Matrix RREF();
+
 	Matrix MA(Matrix m1);
 
 	Matrix MS(Matrix m1);
@@ -224,13 +226,13 @@ float Matrix::Ext_PV(float row_num) {
 float Matrix::Ext_BRV(float row_num, float col_num) {
 
 	vector<float>::iterator f1;
-	float RV;
+	float BRV;
 
 	f1 = num.begin();
 
-	RV = *(f1 + (row_num - 1) * col + col_num);
+	BRV = *(f1 + (row_num - 1) * col + (col_num-1));
 
-	return RV;
+	return BRV;
 
 }
 
@@ -304,9 +306,9 @@ Matrix Matrix::Row_Sub(float row_num, Matrix mS) {
 
 // ****Matrix Row reduction
 // 
-// Reduces NxN matrix into RREF form if possible
+// Reduces NxN matrix into REF form if possible
 // 
-// Returns Matrix in RREF form
+// Returns Matrix in REF form
 // 
 Matrix Matrix::REF() {
 
@@ -337,7 +339,7 @@ Matrix Matrix::REF() {
 
 		for (float j = (i + 1); j < row + 1; j++) {
 
-			scal = mO.Ext_BRV(j, (i-1));
+			scal = mO.Ext_BRV(j, i);
 			mT1 = mT;
 			mT1.SM(scal);
 			mO = mO.Row_Sub(j, mT1);
@@ -347,6 +349,36 @@ Matrix Matrix::REF() {
 
 	return mO;
 
+}
+
+// ****Matrix Row reduced Echelon Form
+// 
+// Reduces NxN matrix into RREF form if possible
+// 
+// Returns Matrix in RREF form
+// 
+Matrix Matrix::RREF() {
+
+	float scal;
+
+	Matrix mT(col), mO(row, col, num);
+
+	mO = mO.REF();
+
+	for (float j = 1; j < row; j++) {
+
+		mT = mO.Row_Dec(j);
+
+		for (float i = (j - 1); i > 0; i--) {
+
+			scal = mO.Ext_BRV(i, j);
+			mT.SM(scal);
+			mO = mO.Row_Sub(i,mT);
+
+		}
+	}
+
+	return mO;
 }
 
 // ****Matrix Row_Dec
@@ -493,7 +525,13 @@ Matrix Matrix::MS(Matrix m1) {
 
 	for (f1 = m1.num.begin(), f2 = num.begin(); f1 != m1.num.end(), f2 != num.end(); ++f1, ++f2) {
 
-		mR.num.push_back((*f1) - (*f2));
+		if ((*f1) == 0)
+		{
+			mR.num.push_back((*f2));
+		}
+		else {
+			mR.num.push_back((*f2) - (*f1));
+		}
 	}
 
 	return mR;
@@ -552,8 +590,18 @@ void Matrix::SM(float scale) {
 	vector<float>::iterator f1;
 
 	for (f1 = num.begin(); f1 != num.end(); ++f1) {
+		
+		if ( ( ( signbit( (*f1) ) ) && ( signbit(scale) ) ) ||
+			((*f1) == 0) ) {
 
-		(*f1) *= scale ;
+			(*f1) *= scale;
+			(*f1) = fabs(*f1);
+
+		}
+		else {
+			
+			(*f1) *= scale;
+		}
 	}
 
 }
@@ -609,19 +657,19 @@ Matrix Matrix::MT() {
 
 int main() {
 
-	vector<float> mat = {9,8,5,1,0,0,6,7,4,0,1,0,0,8,3,0,0,1};
+	vector<float> mat = {1,2,3,1,0,0,4,5,6,0,1,0,7,8,9,0,0,1};
 
-	vector<float> mat1 = { 4,5,6 };
+	vector<float> mat1 = { (-4),(-5),(-6)};
 	
 	float row = 3;
 
 	float col = 6;
 
-	float s = 2;
+	float s =  (-2);
 
 	Matrix m1(row, col, mat), m2(1, col, mat1);
 
-	m1 = m1.REF();
+	m1 = m1.RREF();
 
 	m1.DM();
 
