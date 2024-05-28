@@ -7,15 +7,29 @@ class Matrix
 {
 public:
 
-	Matrix(float dim_row, float dim_col); 
+	Matrix(float dim_row, float dim_col);
 
 	Matrix(float dim_col);
 
-	Matrix(float dim_row, float dim_col, vector<float> new_num);
+	Matrix(float dim_row, float dim_col, vector<float> new_num); 
 
 	void DM();
+	
+	Matrix REF();
 
-	Matrix RREF();
+	Matrix MA(Matrix m1);
+
+	Matrix MS(Matrix m1);
+
+	Matrix MM(Matrix m1);
+
+	void SM(float scale);
+
+	Matrix MI(Matrix m1);
+
+	Matrix MT();
+
+private:
 
 	Matrix Row_Dec(float row_num);
 
@@ -33,33 +47,11 @@ public:
 
 	float Ext_PV(float row_num);
 
-	float Ext_RV(float row_num, float col_num);
-	
+	float Ext_BRV(float row_num, float col_num);
+
 	Matrix Row_Rep(float row_num, Matrix mR);
 
 	Matrix Row_Sub(float row_num, Matrix mS);
-
-	Matrix MA(Matrix m1);
-
-	Matrix MS(Matrix m1);
-
-	Matrix MM(Matrix m1);
-
-	void SM(float scale);
-
-	Matrix MI(Matrix m1);
-
-	Matrix MT();
-
-	// Matrix Eigenvalue (MVal)
-
-	//Matrix MVal(Matrix m1);
-
-	// Matrix Eigenvector (MVec)
-
-	//Matrix MVec(Matrix m1);
-
-private:
 
 	float col;
 	float row;
@@ -81,8 +73,8 @@ Matrix::Matrix(float dim_row, float dim_col) {
 
 // ****New Empty Matrix Constructor Row
 //
-// Make new empty matrix of specified dimensions
-// for combining elements of other matrices 
+// Creates matrix with 0 rows and dim_col columns.
+// Convenient as a base to adjoin multiple matrices together 
 //  
 Matrix::Matrix(float dim_col) {
 
@@ -133,6 +125,10 @@ void Matrix::DM() {
 	cout << "\n";
 }
 
+// ****Extract Row Complement top
+// 
+// Creates new matrix containing the rows above row_num'th row in object matrix
+//
 Matrix Matrix::Row_ExtRCT(float row_num) {
 	
 	Matrix mT(1,col), mC(row_num - 1,col), mO(row,col,num);
@@ -150,6 +146,10 @@ Matrix Matrix::Row_ExtRCT(float row_num) {
 	return mC;
 }
 
+// ****Extract Row Complement bottom
+// 
+// Creates new matrix containing the rows below row_num'th row in object matrix
+//
 Matrix Matrix::Row_ExtRCB(float row_num) {
 
 	Matrix mT(1, col), mC(row-row_num, col), mO(row, col, num);
@@ -168,6 +168,10 @@ Matrix Matrix::Row_ExtRCB(float row_num) {
 
 }
 
+// ****Row Swap
+// 
+// Swaps row_num1'th with row_num2'th in object matrix
+//
 void Matrix::Row_Swap(float row_num1, float row_num2) {
 
 	vector<float>::iterator f1, f2, fT;
@@ -196,12 +200,11 @@ void Matrix::Row_Swap(float row_num1, float row_num2) {
 
 }
 
+// ****Extract Pivot value
+// 
+// Returns value of pivot in the row_num'th row of the object matrix
+//
 float Matrix::Ext_PV(float row_num) {
-
-	if (row != col) {
-		printf("Matrix not NxN! Only working for NxN matrices");
-		exit(1);
-	}
 
 	vector<float>::iterator f1;
 	float PV;
@@ -214,12 +217,11 @@ float Matrix::Ext_PV(float row_num) {
 
 }
 
-float Matrix::Ext_RV(float row_num, float col_num) {
-
-	if (row != col) {
-		printf("Matrix not NxN! Only working for NxN matrices");
-		exit(1);
-	}
+// ****Extract Below Row Pivot value
+// 
+// Returns the value at (row_num.col_num)'th position in the matrix
+//
+float Matrix::Ext_BRV(float row_num, float col_num) {
 
 	vector<float>::iterator f1;
 	float RV;
@@ -232,6 +234,10 @@ float Matrix::Ext_RV(float row_num, float col_num) {
 
 }
 
+// ****Row Replace
+// 
+// Replaces row_num'th row with row mR
+//
 Matrix Matrix::Row_Rep(float row_num, Matrix mR) {
 
 	if (mR.col != col) {
@@ -302,7 +308,7 @@ Matrix Matrix::Row_Sub(float row_num, Matrix mS) {
 // 
 // Returns Matrix in RREF form
 // 
-Matrix Matrix::RREF() {
+Matrix Matrix::REF() {
 
 	float scal;
 
@@ -318,7 +324,7 @@ Matrix Matrix::RREF() {
 			mT.SM(scal);
 			mO = mO.Row_Rep(i, mT);
 		}
-		else if (scal == 0) {
+		else if ((scal == 0) && (i < row)) {
 			
 			mO.Row_Swap(i, (i + 1));
 
@@ -331,7 +337,7 @@ Matrix Matrix::RREF() {
 
 		for (float j = (i + 1); j < row + 1; j++) {
 
-			scal = mO.Ext_RV(j, (i-1));
+			scal = mO.Ext_BRV(j, (i-1));
 			mT1 = mT;
 			mT1.SM(scal);
 			mO = mO.Row_Sub(j, mT1);
@@ -342,8 +348,6 @@ Matrix Matrix::RREF() {
 	return mO;
 
 }
-
-
 
 // ****Matrix Row_Dec
 //
@@ -602,36 +606,22 @@ Matrix Matrix::MT() {
 
 }
 
-// ****Matrix Eigenvalue (MVal)
-/*
-vector<float> Matrix::MVal(vector<float> matrix1) {
-
-
-}
-
-// Matrix Eigenvector (MVec)
-
-vector<float> Matrix::MVec(vector<float> matrix1) {
-
-
-}
-*/
 
 int main() {
 
-	vector<float> mat = {1,2,3,1,2,3,7,8,9};
+	vector<float> mat = {9,8,5,1,0,0,6,7,4,0,1,0,0,8,3,0,0,1};
 
 	vector<float> mat1 = { 4,5,6 };
 	
 	float row = 3;
 
-	float col = 3;
+	float col = 6;
 
 	float s = 2;
 
 	Matrix m1(row, col, mat), m2(1, col, mat1);
 
-	m1.RREF();
+	m1 = m1.REF();
 
 	m1.DM();
 
