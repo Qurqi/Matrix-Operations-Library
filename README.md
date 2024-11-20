@@ -2,7 +2,7 @@ Hi there!
 
 Thanks for checking out my project.
 
-This is a short project I decided to do before I undertake making a machine learning model from scratch, and a DC circuit solver. I thought it wise to freshen up on my linear algebra knowledge, considering its large role in machine learning and circuit analysis.
+This is a short project I decided to do before I undertake some machine learning and AC circuit coursework next year. I thought it wise to freshen up on my linear algebra knowledge, considering its large role in machine learning and circuit analysis.
 
 My current plan for this library is to use it as practice for other programming projects rather than focus on maximising the efficiency of my algorithms. Algorithm optmization is not my interest here. However, that is not to say that I will exclude any current improvements in, for example, matrix multiplication algorithms for the sake of writing "my own library". In the future I will certainly work on optimizing the library, based on cutting edge algorithms, but the current main-objective is to practice fundamental programming skills.
 
