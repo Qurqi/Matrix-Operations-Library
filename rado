@@ -1,0 +1,16 @@
+The most time consuming portion of the Quadcopter drone project was learning how to
+calculate the lift the propellers would generate base on the motors’ torque, and propellers
+pitch angle. This was necessary to determine weight restrictions. It may seem out of place to
+mention a mechanical design challenge, but I think it demonstrates my ability to overcome
+unfamiliar challenges. Within the project I also configured an accelerometer and wireless
+communication chip for the onboard Arduino, along with wiring the motors, and motor
+controllers.
+
+The Line Following robot project involved a lot of C++ programming on an Arduino board
+and designing the logic to drive the robots line-response system. The robots line-response
+system involved configuring an array of 5 IR-sensors, tuning their potentiometers, then using
+their inputs to inform the motors how to respond to the line.
+
+Thank you for providing the opportunity to work at CSIS, and reviewing my application.
+If you would like to coordinate an interview with me please contact me via phone at 604-866-
+6500 or email at johndr3295@outlook.com
